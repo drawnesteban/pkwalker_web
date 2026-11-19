@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walker sprite editor</title>
+<style>
+  body{margin:0;font-family:system-ui,sans-serif;color:#1d2024;background:#f3f4f6;line-height:1.45}
+  main{max-width:880px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start}
+  @media(max-width:760px){main{grid-template-columns:1fr}}
+  h1{font-size:1.3rem;margin:0 0 4px}
+  p.hint{margin:0 0 20px;color:#555b63;font-size:.92rem}
+  label{display:block;font-weight:600;font-size:.9rem;margin:16px 0 6px}
+  input[type=text]{width:100%;box-sizing:border-box;padding:9px 10px;font:inherit;border:1px solid #b9bec6;border-radius:6px;background:#fff}
+  input[type=range]{width:100%}
+  .inline{display:flex;gap:8px;align-items:center;font-weight:400;margin-top:14px}
+  .status{font-size:.85rem;min-height:1.3em;margin-top:6px;color:#555b63}
+  .status.bad{color:#a12b1f}
+  .actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  button{font:inherit;font-weight:600;padding:9px 14px;border-radius:6px;border:1px solid #1d2024;background:#1d2024;color:#fff;cursor:pointer}
+  button.alt{background:#fff;color:#1d2024}
+  button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #2b6cb0;outline-offset:2px}
+  iframe{width:340px;height:340px;border:0;background:#fff;border-radius:8px}
+  details{margin-top:20px}
+  textarea{width:100%;height:280px;box-sizing:border-box;font:12px ui-monospace,monospace;padding:8px;border:1px solid #b9bec6;border-radius:6px}
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>Walker sprite editor</h1>
+    <p class="hint">Paste a sprite URL, check the preview, then export the CSS and upload it to Neocities in place of the old pokewalker.css.</p>
+    <label for="url">Sprite image URL</label>
+    <input id="url" type="text" placeholder="sprites/pikachu.png or https://..." autocomplete="off" spellcheck="false">
+    <div class="status" id="status" role="status"></div>
+    <label for="size">Sprite size: <span id="sizeVal">22</span></label>
+    <input id="size" type="range" min="8" max="25" step="1" value="22">
+    <label class="inline"><input id="pix" type="checkbox" checked> Pixelated scaling (keep on for pixel-art sprites)</label>
+    <div class="actions">
+      <button id="copy">Copy CSS</button>
+      <button id="dl" class="alt">Download pokewalker.css</button>
+    </div>
+    <label for="out">Exported CSS</label><textarea id="out" readonly spellcheck="false"></textarea>
+    <div class="status" id="note" role="status"></div>
+    <p class="hint" style="margin-top:20px">Tip: upload the sprite to your own Neocities folder and use its path. Hotlinked images break if the other site moves or blocks them. A relative path in the exported CSS resolves from the CSS file's folder.</p>
+  </section>
+  <section><iframe id="preview" title="Widget preview"></iframe></section>
+</main>
+<script>
+  const TEMPLATE = '/* Pokewalker widget styles. Change the three variables below, or export a new copy from sprite-editor.html */\n:root {\n  --sprite: __SPRITE__;\n  --sprite-h: __SIZE__;\n  --sprite-render: __RENDER__;\n}\n\nhtml,body {\n  margin:0;\n  height:100%;\n  background:transparent;\n  font-family:ui-monospace,"Courier New",monospace;\n}\n\nbody {\n  display:flex;\n  align-items:center;\n  justify-content:center;\n}\n\n.walker {\n  width:min(100vw,100vh);\n  aspect-ratio:1;\n  position:relative;\n  container-type:inline-size;\n}\n\n.ball {\n  position:absolute;\n  inset:0;\n  border-radius:50%;\n  overflow:hidden;\n  background:linear-gradient(#e63247 0,#d02a3a 30%,#c4252f 45.9%,#111 45.9%,#111 51.8%,#fafafa 51.8%,#e6e6e6 100%);\n  box-shadow:inset 0 -3cqw 6cqw rgba(0,0,0,.12);\n}\n\n.ball::before {\n  content:"";\n  position:absolute;\n  left:12%;\n  top:6%;\n  width:44%;\n  height:22%;\n  border-radius:50%;\n  background:radial-gradient(ellipse at 40% 30%,rgba(255,255,255,.45),rgba(255,255,255,0) 70%);\n  transform:rotate(-24deg);\n}\n\n.frame {\n  position:absolute;\n  left:21.2%;\n  top:24.4%;\n  width:58.3%;\n  height:41.4%;\n  background:#0d0d0d;\n  border-radius:3.2cqw;\n  box-sizing:border-box;\n  padding:1.6cqw;\n}\n\n.lcd {\n  width:100%;\n  height:100%;\n  box-sizing:border-box;\n  background:#b2b3a9;\n  border-radius:1.8cqw;\n  color:#2b2e26;\n  padding:2.2cqw 3cqw;\n  display:flex;\n  flex-direction:column;\n  overflow:hidden;\n}\n\n.top {\n  flex:1;\n  min-height:0;\n  display:flex;\n  justify-content:space-between;\n  align-items:flex-end;\n  gap:2cqw;\n}\n\n.info {\n  align-self:flex-start;\n  min-width:0;\n}\n\n.label {\n  font-size:3.4cqw;\n  line-height:1;\n  color:#5b5e52;\n}\n\n.meta {\n  font-size:2.8cqw;\n  line-height:1.2;\n  color:#5b5e52;\n  margin-top:1cqw;\n}\n\n.meta.stale {\n  color:#8a2b22;\n}\n\n.sprite {\n  flex:none;\n  width:calc(var(--sprite-h) * 1cqw);\n  height:calc(var(--sprite-h) * 1cqw);\n  background:var(--sprite) center bottom/contain no-repeat;\n  image-rendering:var(--sprite-render);\n}\n\n.row {\n  border-top:.5cqw solid #2b2e26;\n  margin-top:1cqw;\n  padding-top:1cqw;\n}\n\n.steps {\n  font-size:8.5cqw;\n  font-weight:700;\n  line-height:1;\n  text-align:right;\n  font-variant-numeric:tabular-nums;\n  letter-spacing:.2cqw;\n}\n\n.btn {\n  position:absolute;\n  border-radius:50%;\n  box-sizing:border-box;\n  padding:0;\n  cursor:default;\n  background:radial-gradient(circle at 40% 35%,#fff,#ececec 60%,#d6d6d6);\n  border:.5cqw solid #8f8a8a;\n  box-shadow:0 .8cqw 1cqw rgba(0,0,0,.18);\n}\n\n.btn.l {\n  left:21.8%;\n  top:71.4%;\n  width:11.7%;\n  height:11.7%;\n}\n\n.btn.r {\n  left:66.7%;\n  top:70.9%;\n  width:12%;\n  height:12%;\n}\n\n.btn.c {\n  left:42.9%;\n  top:72.8%;\n  width:15%;\n  height:15%;\n  cursor:pointer;\n}\n\n.btn.c:active {\n  transform:translateY(.4cqw);\n}\n\n.btn:focus-visible {\n  outline:.8cqw solid #2b6cb0;\n  outline-offset:.6cqw;\n}\n\n.btn.l::after,.btn.r::after {\n  content:"";\n  position:absolute;\n  top:50%;\n  left:50%;\n  border-style:solid;\n  border-color:transparent;\n  transform:translate(-50%,-50%);\n}\n\n.btn.l::after {\n  border-width:1.6cqw 2.6cqw 1.6cqw 0;\n  border-right-color:#d4d4d4;\n}\n\n.btn.r::after {\n  border-width:1.6cqw 0 1.6cqw 2.6cqw;\n  border-left-color:#d4d4d4;\n}\n';
+  const MARKUP = '<div class="walker" role="group" aria-label="Step counter">\n    <div class="ball"></div>\n    <div class="frame"><div class="lcd">\n      <div class="top">\n        <div class="info"><div class="label">steps today</div><div class="meta" id="meta">Updated just now</div></div>\n        <div class="sprite" role="img" aria-label="Pokémon"></div>\n      </div>\n      <div class="row"><div class="steps" id="steps">4,231</div></div>\n    </div></div>\n    <span class="btn l" aria-hidden="true"></span>\n    <button class="btn c" id="refresh" aria-label="Refresh step count"></button>\n    <span class="btn r" aria-hidden="true"></span>\n  </div>';
+  const $ = id => document.getElementById(id);
+  function buildCss(){
+    const u = $("url").value.trim().replace(/\\/g, "%5C").replace(/"/g, "%22").replace(/[\r\n]/g, "");
+    const sprite = u ? 'url("' + u + '")' : "none";
+    return TEMPLATE.split("__SPRITE__").join(sprite)
+      .split("__SIZE__").join($("size").value)
+      .split("__RENDER__").join($("pix").checked ? "pixelated" : "auto");
+  }
+  function checkImage(){
+    const u = $("url").value.trim(), s = $("status");
+    s.className = "status";
+    if (!u) { s.textContent = "No sprite set."; return; }
+    s.textContent = "Checking image…";
+    const t = new Image();
+    t.onload = () => { if ($("url").value.trim() === u) s.textContent = "Image loaded (" + t.naturalWidth + "×" + t.naturalHeight + ")."; };
+    t.onerror = () => { if ($("url").value.trim() === u) { s.className = "status bad"; s.textContent = "Couldn't load that image. Check the URL or path."; } };
+    t.src = u;
+  }
+  function render(){
+    const css = buildCss();
+    $("sizeVal").textContent = $("size").value;
+    $("out").value = css;
+    $("preview").srcdoc = "<!DOCTYPE html><html><head><style>" + css + "<\/style></head><body>" + MARKUP + "</body></html>";
+  }
+  let timer;
+  $("url").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(() => { render(); checkImage(); }, 300); });
+  $("size").addEventListener("input", render);
+  $("pix").addEventListener("change", render);
+  function note(msg, bad){ const n = $("note"); n.textContent = msg; n.className = "status" + (bad ? " bad" : ""); }
+  $("out").addEventListener("click", () => $("out").select());
+  $("copy").addEventListener("click", async () => {
+    const css = buildCss();
+    try { await navigator.clipboard.writeText(css); note("CSS copied to clipboard."); return; } catch(e){}
+    $("out").value = css; $("out").focus(); $("out").select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch(e){}
+    note(ok ? "CSS copied to clipboard." : "Clipboard blocked here. The CSS is selected: press Ctrl+C (Cmd+C on Mac).", !ok);
+  });
+  $("dl").addEventListener("click", () => {
+    try {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([buildCss()], {type:"text/css"}));
+      a.download = "pokewalker.css"; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      note("Download started. If nothing downloads, copy the CSS from the box and save it as pokewalker.css.");
+    } catch(e){ note("Download blocked here. Copy the CSS from the box and save it as pokewalker.css.", true); }
+  });
+  render(); checkImage();
+</script>
+</body>
+</html>
