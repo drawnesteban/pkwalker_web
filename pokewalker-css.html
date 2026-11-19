@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walker</title>
+<link rel="stylesheet" href="pokewalker.css">
+</head>
+<body>
+  <div class="walker" role="group" aria-label="Step counter">
+    <div class="ball"></div>
+    <div class="frame"><div class="lcd">
+      <div class="top">
+        <div class="info"><div class="label">steps today</div><div class="meta" id="meta">Loading…</div></div>
+        <div class="sprite" role="img" aria-label="Pokémon"></div>
+      </div>
+      <div class="row"><div class="steps" id="steps" aria-live="polite">--</div></div>
+    </div></div>
+    <span class="btn l" aria-hidden="true"></span>
+    <button class="btn c" id="refresh" aria-label="Refresh step count"></button>
+    <span class="btn r" aria-hidden="true"></span>
+  </div>
+<script>
+  // ---- Config ----
+  const DATA_URL = "steps.json";
+  const POLL_MS = 5 * 60 * 1000;
+  const STALE_MS = 6 * 60 * 60 * 1000;
+  const $steps = document.getElementById("steps"), $meta = document.getElementById("meta");
+  function fmtAge(ms){
+    const m = Math.round(ms / 60000);
+    if (m < 1) return "just now";
+    if (m < 60) return m + " min ago";
+    const h = Math.floor(m / 60);
+    return h < 24 ? h + " h ago" : Math.floor(h / 24) + " d ago";
+  }
+  async function load(){
+    try{
+      const res = await fetch(DATA_URL + "?t=" + Date.now(), {cache:"no-store"});
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const d = await res.json();
+      if (typeof d.steps !== "number") throw new Error("bad data");
+      $steps.textContent = d.steps.toLocaleString();
+      const age = Date.now() - new Date(d.updated).getTime();
+      if (isNaN(age)) { $meta.textContent = "No update time"; $meta.className = "meta stale"; return; }
+      const stale = age > STALE_MS;
+      $meta.textContent = (stale ? "Stale: " : "Updated ") + fmtAge(age);
+      $meta.className = "meta" + (stale ? " stale" : "");
+    }catch(e){
+      $steps.textContent = "--";
+      $meta.textContent = "Can't load steps.json";
+      $meta.className = "meta stale";
+    }
+  }
+  document.getElementById("refresh").addEventListener("click", load);
+  load();
+  setInterval(load, POLL_MS);
+</script>
+</body></html>

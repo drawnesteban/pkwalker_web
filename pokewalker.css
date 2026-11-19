@@ -1,0 +1,188 @@
+/* Pokewalker widget styles. Change the three variables below, or export a new copy from sprite-editor.html */
+:root {
+  --sprite: url("https://i.ibb.co/Q3KpG276/makuhita.gif");
+  --sprite-h: 25;
+  --sprite-render: pixelated;
+}
+
+html,body {
+  margin:0;
+  height:100%;
+  background:transparent;
+  font-family:ui-monospace,"Courier New",monospace;
+}
+
+body {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.walker {
+  width:min(100vw,100vh);
+  aspect-ratio:1;
+  position:relative;
+  container-type:inline-size;
+}
+
+.ball {
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  overflow:hidden;
+  background:linear-gradient(#e63247 0,#d02a3a 30%,#c4252f 45.9%,#111 45.9%,#111 51.8%,#fafafa 51.8%,#e6e6e6 100%);
+  box-shadow:inset 0 -3cqw 6cqw rgba(0,0,0,.12);
+}
+
+.ball::before {
+  content:"";
+  position:absolute;
+  left:12%;
+  top:6%;
+  width:44%;
+  height:22%;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 40% 30%,rgba(255,255,255,.45),rgba(255,255,255,0) 70%);
+  transform:rotate(-24deg);
+}
+
+.frame {
+  position:absolute;
+  left:21.2%;
+  top:24.4%;
+  width:58.3%;
+  height:41.4%;
+  background:#0d0d0d;
+  border-radius:3.2cqw;
+  box-sizing:border-box;
+  padding:1.6cqw;
+}
+
+.lcd {
+  width:100%;
+  height:100%;
+  box-sizing:border-box;
+  background:#b2b3a9;
+  border-radius:1.8cqw;
+  color:#2b2e26;
+  padding:2.2cqw 3cqw;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.top {
+  flex:1;
+  min-height:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:2cqw;
+}
+
+.info {
+  align-self:flex-start;
+  min-width:0;
+}
+
+.label {
+  font-size:3.4cqw;
+  line-height:1;
+  color:#5b5e52;
+}
+
+.meta {
+  font-size:2.8cqw;
+  line-height:1.2;
+  color:#5b5e52;
+  margin-top:1cqw;
+}
+
+.meta.stale {
+  color:#8a2b22;
+}
+
+.sprite {
+  flex:none;
+  width:calc(var(--sprite-h) * 1cqw);
+  height:calc(var(--sprite-h) * 1cqw);
+  background:var(--sprite) center bottom/contain no-repeat;
+  image-rendering:var(--sprite-render);
+}
+
+.row {
+  border-top:.5cqw solid #2b2e26;
+  margin-top:1cqw;
+  padding-top:1cqw;
+}
+
+.steps {
+  font-size:8.5cqw;
+  font-weight:700;
+  line-height:1;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.2cqw;
+}
+
+.btn {
+  position:absolute;
+  border-radius:50%;
+  box-sizing:border-box;
+  padding:0;
+  cursor:default;
+  background:radial-gradient(circle at 40% 35%,#fff,#ececec 60%,#d6d6d6);
+  border:.5cqw solid #8f8a8a;
+  box-shadow:0 .8cqw 1cqw rgba(0,0,0,.18);
+}
+
+.btn.l {
+  left:21.8%;
+  top:71.4%;
+  width:11.7%;
+  height:11.7%;
+}
+
+.btn.r {
+  left:66.7%;
+  top:70.9%;
+  width:12%;
+  height:12%;
+}
+
+.btn.c {
+  left:42.9%;
+  top:72.8%;
+  width:15%;
+  height:15%;
+  cursor:pointer;
+}
+
+.btn.c:active {
+  transform:translateY(.4cqw);
+}
+
+.btn:focus-visible {
+  outline:.8cqw solid #2b6cb0;
+  outline-offset:.6cqw;
+}
+
+.btn.l::after,.btn.r::after {
+  content:"";
+  position:absolute;
+  top:50%;
+  left:50%;
+  border-style:solid;
+  border-color:transparent;
+  transform:translate(-50%,-50%);
+}
+
+.btn.l::after {
+  border-width:1.6cqw 2.6cqw 1.6cqw 0;
+  border-right-color:#d4d4d4;
+}
+
+.btn.r::after {
+  border-width:1.6cqw 0 1.6cqw 2.6cqw;
+  border-left-color:#d4d4d4;
+}
