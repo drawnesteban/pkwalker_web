@@ -1,5 +1,6 @@
 Walker
-![Walker demo](assets/walkergif.gif)
+<img width="1074" height="1060" alt="pkwalkergif" src="https://github.com/user-attachments/assets/db8a0e81-d97c-47ef-bd29-78e48deb8dab" />
+
 A Pokéwalker-style step counter for a Neocities site. It shows today's step count from an iPhone (Apple Health) on a pure HTML/CSS recreation of the device, with a swappable Pokémon sprite.
 
 Live page: https://regueritos.neocities.org/pokewalker-css
